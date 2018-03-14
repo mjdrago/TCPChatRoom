@@ -27,7 +27,7 @@ namespace Client
         public void Recieve()
         {
             byte[] recievedMessage = new byte[256];
-            stream.Read(recievedMessage, 0, recievedMessage.Length);
+            stream.Read(recievedMessage, 0, recievedMessage.Length); 
             UI.DisplayMessage(Encoding.ASCII.GetString(recievedMessage));
         }
     }

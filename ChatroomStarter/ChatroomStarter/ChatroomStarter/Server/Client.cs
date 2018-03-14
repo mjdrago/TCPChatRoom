@@ -9,10 +9,10 @@ namespace Server
 {
     class Client
     {
-        NetworkStream stream;
+        NetworkStream stream; //provides stream of data for network. Allows client to stream, send and receive messages
         TcpClient client;
         public string UserId;
-        public Client(NetworkStream Stream, TcpClient Client)
+        public Client(NetworkStream Stream, TcpClient Client) 
         {
             stream = Stream;
             client = Client;
@@ -20,14 +20,14 @@ namespace Server
         }
         public void Send(string Message)
         {
-            byte[] message = Encoding.ASCII.GetBytes(Message);
+            byte[] message = Encoding.ASCII.GetBytes(Message);//allows it to transfer from high level language to low level
             stream.Write(message, 0, message.Count());
         }
         public string Recieve()
         {
-            byte[] recievedMessage = new byte[256];
+            byte[] recievedMessage = new byte[256]; //don't get why we need an array of bytes?
             stream.Read(recievedMessage, 0, recievedMessage.Length);
-            string recievedMessageString = Encoding.ASCII.GetString(recievedMessage);
+            string recievedMessageString = Encoding.ASCII.GetString(recievedMessage);// converts from low level, back to high level language
             Console.WriteLine(recievedMessageString);
             return recievedMessageString;
         }

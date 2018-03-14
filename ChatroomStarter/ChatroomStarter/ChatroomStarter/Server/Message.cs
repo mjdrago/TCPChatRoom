@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Message
+    class Message //may get used for dependency injection? currently dead code
     {
         public Client sender;
         public string Body;
