@@ -16,6 +16,7 @@ namespace Server
         Dictionary<int, Client> listOfClients; //deals with clients, can pick what you take out
         Queue<Message> messages; //deals with messages, first in first out
         TcpListener server;
+       
 
         public Server()
         {
@@ -26,24 +27,33 @@ namespace Server
         }
         public void Run() //create the two threads we need - acceptclient, sendmessage, receivemessage
         {
-            //Thread thread = new Thread(AcceptClient);
-            //thread.Start();
-            //Thread thread2 = new Thread(SendMessage);
+            Thread thread = new Thread(AcceptClient);
+            thread.Start();
+            //Thread thread2 = new Thread(()=>
             //thread2.Start();
             //Thread thread3 = new Thread(ReceiveMessage);
             //thread3.Start();
-            AcceptClient();
-            string message = client.Recieve();
-            Respond(message);
+            //AcceptClient();
+            //string message = client.Recieve();
+            //Respond(message);
         }
         private void AcceptClient() //create while loop, thread should go here. dictionary gets information from client here         
         {
-            TcpClient clientSocket = default(TcpClient); //like a virtual handshake between two servers
-            clientSocket = server.AcceptTcpClient();
-            Console.WriteLine("Connected");
-            NetworkStream stream = clientSocket.GetStream(); 
-            client = new Client(stream, clientSocket);
-
+            int i = 0;
+            while (true)
+            { 
+                TcpClient clientSocket = default(TcpClient); //like a virtual handshake between two servers
+                clientSocket = server.AcceptTcpClient();
+                Console.WriteLine("Connected");
+                NetworkStream stream = clientSocket.GetStream();
+                Client newClient = new Client(stream, clientSocket);
+                if (clientSocket  != null)
+                {
+                    listOfClients.Add(i, newClient);
+                    i++;
+                }
+                
+            }
         }
         private void Respond(string body)
         {
