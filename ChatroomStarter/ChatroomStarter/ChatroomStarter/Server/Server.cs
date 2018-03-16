@@ -27,6 +27,16 @@ namespace Server
         }
         public void Run() //create the two threads we need - acceptclient, sendmessage, receivemessage
         {
+            Parallel.Invoke(
+                () => {
+                    AcceptClient();
+                }
+                ,
+                () => {
+                    Respond("Message");
+                }
+
+            );
             Thread thread = new Thread(AcceptClient);
             thread.Start();
             //Thread thread2 = new Thread(()=>
@@ -47,9 +57,13 @@ namespace Server
                 Console.WriteLine("Connected");
                 NetworkStream stream = clientSocket.GetStream();
                 Client newClient = new Client(stream, clientSocket);
+                //newClient.run();
                 if (clientSocket  != null)
                 {
+                    Thread client = new Thread(() => newClient.Recieve());
+                    client.Start();
                     listOfClients.Add(i, newClient);
+                    //notification to users goes here
                     i++;
                 }
                 
