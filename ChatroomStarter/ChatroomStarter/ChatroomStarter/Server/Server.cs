@@ -69,9 +69,20 @@ namespace Server
                 
             }
         }
-        private void Respond(string body)
+        private void Respond()
         {
-             client.Send(body);
+            while (true)
+            {
+                if (messages.Count > 0)
+                {
+                    Message messageToSend = messages.Dequeue();
+                    foreach (int,Client index,item in listOfClients)
+                    {
+                        item.Send(messageToSend.Body);
+                    }
+                }
+            }
+             //client.Send(body);
         }
     }
 }
