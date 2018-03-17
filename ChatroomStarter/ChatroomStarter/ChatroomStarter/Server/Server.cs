@@ -14,9 +14,9 @@ namespace Server
     {
         public static Client client;
         Dictionary<int, Client> listOfClients;
-        Queue<Message> messages;
+        public static Queue<Message> messages;
         TcpListener server;
-       
+        private Object enumerationLock = new Object();
 
         public Server()
         {
@@ -35,10 +35,14 @@ namespace Server
                 () => {
                     SendFromQueue();
                 }
-
+                //,
+                //() =>
+                //{
+                //    ReceiveToQueue();
+                //}
             );
         }
-        private void AcceptClient() 
+        public void AcceptClient() 
         {
             int i = 0;
             while (true)
@@ -54,7 +58,6 @@ namespace Server
                     client.Start();
                     Notify("New user has joined the chat."); //Update to make it user specific
                     Attach(i, newClient);
-                    //listOfClients.Add(i, newClient);
                     i++;
                 }
                 
@@ -83,6 +86,24 @@ namespace Server
                 }
             }
         }
+        //public void ReceiveToQueue()
+        //{
+        //    while (true)
+        //    {
+        //        lock (enumerationLock)
+        //        {
+        //            foreach (KeyValuePair<int, Client> user in listOfClients)
+        //            {
+        //                    if (user.Value.messages.Count > 0)
+        //                    {
+        //                        Message messageToReceive = new Message(user.Value, user.Value.messages.Dequeue());
+        //                        messages.Enqueue(messageToReceive);
+        //                    }
+        //            }
+        //        }
+                
+        //    }
+        //}
         public void Attach(int id,Client newClient)
         {
             listOfClients.Add(id, newClient);
