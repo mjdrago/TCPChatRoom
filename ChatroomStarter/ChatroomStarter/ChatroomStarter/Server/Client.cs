@@ -27,14 +27,26 @@ namespace Server
         }
         public void Recieve()
         {
-            while (true)
+            while (true)//Figure out how to allow someone to leave chat with erroring out.
             {
                 byte[] recievedMessage = new byte[256];
-                stream.Read(recievedMessage, 0, recievedMessage.Length);
+                try
+                {
+                    stream.Read(recievedMessage, 0, recievedMessage.Length);
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+                
                 string recievedMessageString = Encoding.ASCII.GetString(recievedMessage);
                 Message messageToAdd = new Message(this, recievedMessageString);
                 Server.messages.Enqueue(messageToAdd);         
             }
+        }
+        public bool IsConnected()
+        {
+            return client.Connected;
         }
     }
 }

@@ -35,11 +35,6 @@ namespace Server
                 () => {
                     SendFromQueue();
                 }
-                //,
-                //() =>
-                //{
-                //    ReceiveToQueue();
-                //}
             );
         }
         public void AcceptClient() 
@@ -70,47 +65,39 @@ namespace Server
                 if (messages.Count > 0)
                 {
                     Message messageToSend = messages.Dequeue();
+                    List<int> skipped = new List<int>();
                     foreach (KeyValuePair<int,Client> user in listOfClients)
                     {
-                        try
+                        if (user.Value != messageToSend.sender)
                         {
-                            user.Value.Send(messageToSend.Body);
+                            try
+                            {
+                                user.Value.Send(messageToSend.Body);
+                            }
+                            catch (Exception)
+                            {
+                                Notify("A user has left the chat");
+                                skipped.Add(user.Key);
+                                continue;
+                            }
+
                         }
-                        catch (Exception)
-                        {
-                            Detach();
-                            Notify("A user has left the chat");
-                            throw;
-                        }
+                        
+                    }
+                    foreach (int key in skipped) //creat own method for detach
+                    {
+                        Detach(key);
                     }
                 }
             }
         }
-        //public void ReceiveToQueue()
-        //{
-        //    while (true)
-        //    {
-        //        lock (enumerationLock)
-        //        {
-        //            foreach (KeyValuePair<int, Client> user in listOfClients)
-        //            {
-        //                    if (user.Value.messages.Count > 0)
-        //                    {
-        //                        Message messageToReceive = new Message(user.Value, user.Value.messages.Dequeue());
-        //                        messages.Enqueue(messageToReceive);
-        //                    }
-        //            }
-        //        }
-                
-        //    }
-        //}
         public void Attach(int id,Client newClient)
         {
             listOfClients.Add(id, newClient);
         }
-        public void Detach()
+        public void Detach(int key)
         {
-
+            listOfClients.Remove(key);
         }
         public void Notify(string message)
         {
@@ -118,6 +105,25 @@ namespace Server
             {
                 user.Value.Send(message);
             }
+        }
+        public void CheckConnections()
+        {
+            int keys = 1;
+            while (keys < listOfClients.Count)
+            {
+
+                if (listOfClients[keys].IsConnected() == false)
+                {
+                    Detach(keys);
+                    Notify("User has left chat");
+                }
+                else
+                {
+                    keys++;
+                }
+                
+            }
+            
         }
     }
 }
