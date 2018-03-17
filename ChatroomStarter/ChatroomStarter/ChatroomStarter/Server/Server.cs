@@ -37,8 +37,6 @@ namespace Server
                 }
 
             );
-            Thread thread = new Thread(AcceptClient);
-            thread.Start();
         }
         private void AcceptClient() 
         {
@@ -54,7 +52,9 @@ namespace Server
                 {
                     Thread client = new Thread(() => newClient.Recieve());
                     client.Start();
-                    listOfClients.Add(i, newClient);
+                    Notify();
+                    Attach(i, newClient);
+                    //listOfClients.Add(i, newClient);
                     i++;
                 }
                 
@@ -69,9 +69,33 @@ namespace Server
                     Message messageToSend = messages.Dequeue();
                     foreach (KeyValuePair<int,Client> user in listOfClients)
                     {
-                        user.Value.Send(messageToSend.Body);
+                        try
+                        {
+                            user.Value.Send(messageToSend.Body);
+                        }
+                        catch (Exception)
+                        {
+                            Detach();
+                            Notify();
+                            throw;
+                        }
                     }
                 }
+            }
+        }
+        public void Attach(int id,Client newClient)
+        {
+            listOfClients.Add(id, newClient);
+        }
+        public void Detach()
+        {
+
+        }
+        public void Notify()
+        {
+            foreach (KeyValuePair<int, Client> user in listOfClients)
+            {
+
             }
         }
     }
