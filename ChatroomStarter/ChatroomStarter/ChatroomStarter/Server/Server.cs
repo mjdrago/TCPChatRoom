@@ -20,7 +20,7 @@ namespace Server
 
         public Server()
         {
-            server = new TcpListener(IPAddress.Parse("192.168.0.153"), 9999);
+            server = new TcpListener(IPAddress.Parse("192.168.0.162"), 9999);
             server.Start(); 
             listOfClients = new Dictionary<int, Client>();
             messages = new Queue<Message>();
@@ -52,7 +52,7 @@ namespace Server
                 {
                     Thread client = new Thread(() => newClient.Recieve());
                     client.Start();
-                    Notify();
+                    Notify("New user has joined the chat."); //Update to make it user specific
                     Attach(i, newClient);
                     //listOfClients.Add(i, newClient);
                     i++;
@@ -76,7 +76,7 @@ namespace Server
                         catch (Exception)
                         {
                             Detach();
-                            Notify();
+                            Notify("A user has left the chat");
                             throw;
                         }
                     }
@@ -91,11 +91,11 @@ namespace Server
         {
 
         }
-        public void Notify()
+        public void Notify(string message)
         {
             foreach (KeyValuePair<int, Client> user in listOfClients)
             {
-
+                user.Value.Send(message);
             }
         }
     }
