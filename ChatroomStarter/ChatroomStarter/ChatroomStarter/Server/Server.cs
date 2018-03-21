@@ -13,16 +13,16 @@ namespace Server
     class Server
     {
         public static Client client;
-        Dictionary<int, Client> listOfClients;
+        Dictionary<int, IObeserverDesignPattern> listOfClients;
         public static Queue<Message> messages;
         TcpListener server;
         private Object enumerationLock = new Object();
 
         public Server()
         {
-            server = new TcpListener(IPAddress.Parse("192.168.0.162"), 9999);
+            server = new TcpListener(IPAddress.Parse("192.168.0.171"), 9999);
             server.Start(); 
-            listOfClients = new Dictionary<int, Client>();
+            listOfClients = new Dictionary<int, IObeserverDesignPattern>();
             messages = new Queue<Message>();
         }
         public void Run() 
@@ -66,17 +66,16 @@ namespace Server
                 {
                     Message messageToSend = messages.Dequeue();
                     List<int> skipped = new List<int>();
-                    foreach (KeyValuePair<int,Client> user in listOfClients)
+                    foreach (KeyValuePair<int,IObeserverDesignPattern> user in listOfClients)
                     {
                         if (user.Value != messageToSend.sender)
                         {
                             try
                             {
-                                user.Value.Send(messageToSend.Body);
+                                user.Value.Update(messageToSend.Body);
                             }
                             catch (Exception)
                             {
-                                Notify("A user has left the chat");
                                 skipped.Add(user.Key);
                                 continue;
                             }
@@ -84,12 +83,21 @@ namespace Server
                         }
                         
                     }
-                    foreach (int key in skipped) //creat own method for detach
+                    if (skipped.Count > 0)
                     {
-                        Detach(key);
+                        RemoveUsers(skipped);
                     }
+                    
                 }
             }
+        }
+        public void RemoveUsers(List<int> skipped)
+        {
+            foreach (int key in skipped)
+            {
+                Detach(key);
+            }
+            Notify("A user has left the chat.");
         }
         public void Attach(int id,Client newClient)
         {
@@ -101,29 +109,29 @@ namespace Server
         }
         public void Notify(string message)
         {
-            foreach (KeyValuePair<int, Client> user in listOfClients)
+            foreach (KeyValuePair<int, IObeserverDesignPattern> user in listOfClients)
             {
-                user.Value.Send(message);
+                user.Value.Update(message);
             }
         }
-        public void CheckConnections()
-        {
-            int keys = 1;
-            while (keys < listOfClients.Count)
-            {
+        //public void CheckConnections()
+        //{
+        //    int keys = 1;
+        //    while (keys < listOfClients.Count)
+        //    {
 
-                if (listOfClients[keys].IsConnected() == false)
-                {
-                    Detach(keys);
-                    Notify("User has left chat");
-                }
-                else
-                {
-                    keys++;
-                }
+        //        if (listOfClients[keys].IsConnected() == false)
+        //        {
+        //            Detach(keys);
+        //            Notify("User has left chat");
+        //        }
+        //        else
+        //        {
+        //            keys++;
+        //        }
                 
-            }
+        //    }
             
-        }
+        //}
     }
 }

@@ -7,18 +7,16 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Client
+    class Client: IObeserverDesignPattern
     {
         NetworkStream stream; 
         TcpClient client;
         public string UserId;
-        //public Queue<String> messages;
         public Client(NetworkStream Stream, TcpClient Client) 
         {
             stream = Stream;
             client = Client;
             UserId = "495933b6-1762-47a1-b655-483510072e73";
-            //messages = new Queue<string>();
         }
         public void Send(string Message)
         {
@@ -47,6 +45,10 @@ namespace Server
         public bool IsConnected()
         {
             return client.Connected;
+        }
+        public void Update(string textToSend)
+        {
+            Send(textToSend);
         }
     }
 }
