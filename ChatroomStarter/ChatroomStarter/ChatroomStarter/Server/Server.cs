@@ -21,7 +21,7 @@ namespace Server
 
         public Server()
         {
-            server = new TcpListener(IPAddress.Parse("192.168.0.171"), 9999);
+            server = new TcpListener(IPAddress.Parse("192.168.0.8"), 9999);
             server.Start(); 
             listOfClients = new Dictionary<int, IObeserverDesignPattern>();
             messages = new Queue<Message>();
@@ -51,9 +51,11 @@ namespace Server
                 Client newClient = new Client(stream, clientSocket);
                 if (clientSocket  != null)
                 {
+                    newClient.GetUserName();
                     Thread client = new Thread(() => newClient.Recieve());
                     client.Start();
-                    Notify("New user has joined the chat."); //Update to make it user specific
+                    string messageToUsers = ($"{newClient.UserName} has joined the chat.");
+                    Notify(messageToUsers);
                     log.InsertToLog("New user has joined the chat");
                     Attach(i, newClient);
                     i++;
@@ -119,24 +121,5 @@ namespace Server
                 user.Value.Update(message);
             }
         }
-        //public void CheckConnections()
-        //{
-        //    int keys = 1;
-        //    while (keys < listOfClients.Count)
-        //    {
-
-        //        if (listOfClients[keys].IsConnected() == false)
-        //        {
-        //            Detach(keys);
-        //            Notify("User has left chat");
-        //        }
-        //        else
-        //        {
-        //            keys++;
-        //        }
-                
-        //    }
-            
-        //}
     }
 }

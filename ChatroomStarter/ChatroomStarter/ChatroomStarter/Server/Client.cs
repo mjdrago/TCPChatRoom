@@ -11,12 +11,12 @@ namespace Server
     {
         NetworkStream stream; 
         TcpClient client;
-        public string UserId;
+        public string UserName;
         public Client(NetworkStream Stream, TcpClient Client) 
         {
             stream = Stream;
             client = Client;
-            UserId = "495933b6-1762-47a1-b655-483510072e73";
+            //UserId = "495933b6-1762-47a1-b655-483510072e73";
         }
         public void Send(string Message)
         {
@@ -25,7 +25,7 @@ namespace Server
         }
         public void Recieve()
         {
-            while (true)//Figure out how to allow someone to leave chat with erroring out.
+            while (true)
             {
                 byte[] recievedMessage = new byte[256];
                 try
@@ -42,13 +42,16 @@ namespace Server
                 Server.messages.Enqueue(messageToAdd);         
             }
         }
-        public bool IsConnected()
-        {
-            return client.Connected;
-        }
         public void Update(string textToSend)
         {
             Send(textToSend);
+        }
+        public void GetUserName()
+        {
+            Send("Please enter your User Name:");
+            byte[] recievedMessage = new byte[256];
+            stream.Read(recievedMessage, 0, recievedMessage.Length);
+            UserName = Encoding.ASCII.GetString(recievedMessage);
         }
     }
 }
