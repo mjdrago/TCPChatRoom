@@ -16,6 +16,7 @@ namespace Server
         Dictionary<int, IObeserverDesignPattern> listOfClients;
         public static Queue<Message> messages;
         TcpListener server;
+        ChatLog log;
         private Object enumerationLock = new Object();
 
         public Server()
@@ -24,6 +25,7 @@ namespace Server
             server.Start(); 
             listOfClients = new Dictionary<int, IObeserverDesignPattern>();
             messages = new Queue<Message>();
+            log = new ChatLog(new TextLog());
         }
         public void Run() 
         {
@@ -52,6 +54,7 @@ namespace Server
                     Thread client = new Thread(() => newClient.Recieve());
                     client.Start();
                     Notify("New user has joined the chat."); //Update to make it user specific
+                    log.InsertToLog("New user has joined the chat");
                     Attach(i, newClient);
                     i++;
                 }
@@ -83,6 +86,7 @@ namespace Server
                         }
                         
                     }
+                    log.InsertToLog(messageToSend.Body);
                     if (skipped.Count > 0)
                     {
                         RemoveUsers(skipped);
@@ -95,6 +99,7 @@ namespace Server
         {
             foreach (int key in skipped)
             {
+                log.InsertToLog("User has left the chat.");
                 Detach(key);
             }
             Notify("A user has left the chat.");
